@@ -1,0 +1,29 @@
+services:
+  libflow-api:
+    build:
+      context: .
+    image: slavanykonenko/libflow-api:latest
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/libflow-api
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16.11-alpine3.23
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - database:/var/lib/postgresql/data
+
+volumes:
+  database:
