@@ -22,6 +22,12 @@ class UserViewSet(ModelViewSet):
             return UserListSerializer
         return UserSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+        if not self.request.user.is_staff:
+            return queryset.filter(id=self.request.user.id)
+        return queryset
+
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
