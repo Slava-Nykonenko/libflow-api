@@ -1,4 +1,8 @@
 from django.db import transaction
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from borrowings.models import Borrowing
@@ -42,3 +46,23 @@ class BorrowingViewSet(ModelViewSet):
             book = borrowing.book
             book.inventory -= 1
             book.save()
+
+    @action(detail=True, methods=["post"], url_path="return")
+    def book_return(self, request, pk=None):
+        borrowing = self.get_object()
+        if borrowing.actual_return_date:
+            return Response(
+                {"detail": "This book has already been returned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        with transaction.atomic():
+            borrowing.actual_return_date = timezone.now().date()
+            borrowing.save()
+
+            book = borrowing.book
+            book.inventory += 1
+            book.save()
+
+        return Response(
+            {"detail": "The book returned successfully."}, status=status.HTTP_200_OK
+        )
