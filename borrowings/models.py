@@ -24,6 +24,7 @@ class Borrowing(models.Model):
                 name="actual_return_after_borrow",
             ),
         ]
+        ordering = ["-id"]
 
     def __str__(self):
         return (
