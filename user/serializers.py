@@ -8,6 +8,7 @@ from user.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = get_user_model()
         fields = (
@@ -50,3 +51,12 @@ class UserSerializer(serializers.ModelSerializer):
 class UserListSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         fields = ("id", "first_name", "last_name")
+
+
+class UserRetrieveSerializer(UserSerializer):
+    borrowings = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="book.title"
+    )
+
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ("borrowings",)
