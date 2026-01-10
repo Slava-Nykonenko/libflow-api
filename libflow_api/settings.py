@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "user",
     "books",
     "borrowings",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -154,3 +155,12 @@ SIMPLE_JWT = {
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
 }
+
+TELEGRAM_BOT_TOKEN = environ["TELEGRAM_BOT_TOKEN"]
+TELEGRAM_CHAT_ID = environ["TELEGRAM_CHAT_ID"]
+
+CELERY_BROKER_URL = environ["CELERY_BROKER_URL"]
+CELERY_RESULT_BACKEND = environ["CELERY_BROKER_URL"]
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"

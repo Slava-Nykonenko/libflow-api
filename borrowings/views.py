@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from borrowings.models import Borrowing
+from libflow_api.tasks import send_telegram_notification
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
@@ -47,6 +48,14 @@ class BorrowingViewSet(ModelViewSet):
             book.inventory -= 1
             book.save()
 
+            message = (
+                f"<b>A new borrowing!</b>\n"
+                f"User: {borrowing.user.first_name} {borrowing.user.last_name}\n"
+                f"e-mail: {borrowing.user.email}\n"
+                f"Book: {book.title}"
+            )
+            send_telegram_notification.apply_async(args=[message])
+
     @action(detail=True, methods=["post"], url_path="return")
     def book_return(self, request, pk=None):
         borrowing = self.get_object()
@@ -62,6 +71,14 @@ class BorrowingViewSet(ModelViewSet):
             book = borrowing.book
             book.inventory += 1
             book.save()
+
+            message = (
+                f"<b>A book returned!</b>\n"
+                f"User: {borrowing.user.first_name} {borrowing.user.last_name}\n"
+                f"e-mail: {borrowing.user.email}\n"
+                f"Book: {book.title}"
+            )
+            send_telegram_notification.apply_async(args=[message])
 
         return Response(
             {"detail": "The book returned successfully."}, status=status.HTTP_200_OK

@@ -6,6 +6,8 @@ WORKDIR /libflow-api
 
 COPY requirements.txt requirements.txt
 
+RUN apk add --no-cache curl
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
