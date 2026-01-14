@@ -1,11 +1,14 @@
 import stripe
+from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework.reverse import reverse
+from stripe.checkout import Session
 
+from borrowings.models import Borrowing
 from payments.models import Payment
 
 
-def create_stripe_session(request, borrowing):
+def create_stripe_session(request: HttpRequest, borrowing: Borrowing) -> Session:
     actual_return = borrowing.actual_return_date or timezone.now().date()
     total_days = max(1, (actual_return - borrowing.borrow_date).days)
 

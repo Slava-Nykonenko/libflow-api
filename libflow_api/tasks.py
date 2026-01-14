@@ -3,13 +3,12 @@ from django.db.models import Q
 from django.utils import timezone
 
 from borrowings.models import Borrowing
-from .celery import app
 import requests
 from django.conf import settings
 
 
 @shared_task
-def send_telegram_notification(message):
+def send_telegram_notification(message: str) -> None:
     bot_token = settings.TELEGRAM_BOT_TOKEN
     chat_id = settings.TELEGRAM_CHAT_ID
 

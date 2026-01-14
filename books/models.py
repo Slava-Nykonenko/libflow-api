@@ -16,5 +16,5 @@ class Book(models.Model):
     inventory = models.PositiveIntegerField()
     daily_fee = models.DecimalField(max_digits=5, decimal_places=2)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title + " - " + self.author

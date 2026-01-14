@@ -18,7 +18,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "actual_return_date")
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         book = data.get("book")
         if book.inventory <= 0:
             raise ValidationError({"book": "This book is currently out of stock."})

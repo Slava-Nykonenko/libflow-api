@@ -26,7 +26,7 @@ class Borrowing(models.Model):
         ]
         ordering = ["-id"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.book.title} borrowed by {self.user.first_name} "
             f"{self.user.last_name}"

@@ -1,17 +1,13 @@
-from decimal import Decimal
-
 import stripe
 from django.conf import settings
+from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.reverse import reverse
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import GenericViewSet
@@ -26,7 +22,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @api_view(["POST", "GET"])
-def checkout_view(request, borrowing_id):
+def checkout_view(request: HttpRequest, borrowing_id: int) -> HttpResponse:
     borrowing = get_object_or_404(Borrowing, id=borrowing_id, user=request.user)
     session = create_stripe_session(request, borrowing)
     return Response({"session_url": session.url}, status=status.HTTP_201_CREATED)
@@ -39,14 +35,14 @@ class SuccessView(TemplateView):
 class CancelView(TemplateView):
     template_name = "payments/cancel.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         context["borrowing_id"] = self.request.GET.get("borrowing_id")
         return context
 
 
 @csrf_exempt
-def stripe_webhook(request):
+def stripe_webhook(request: HttpRequest) -> HttpResponse:
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
@@ -86,7 +82,7 @@ class PaymentViewSet(
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         queryset = Payment.objects.all()
         if not self.request.user.is_staff:
             return queryset.filter(borrowing__user=self.request.user)

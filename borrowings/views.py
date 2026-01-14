@@ -1,4 +1,8 @@
+from typing import Type
+
 from django.db import transaction
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
@@ -14,7 +18,6 @@ from borrowings.serializers import (
     BorrowingRetrieveSerializer,
 )
 from payments.utils import create_stripe_session
-from payments.views import checkout_view
 
 
 # Create your views here.
@@ -22,14 +25,18 @@ class BorrowingViewSet(ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
 
-    def get_serializer_class(self):
+    def get_serializer_class(
+        self,
+    ) -> Type[
+        BorrowingSerializer | BorrowingListSerializer | BorrowingRetrieveSerializer
+    ]:
         if self.action == "list":
             return BorrowingListSerializer
         elif self.action == "retrieve":
             return BorrowingRetrieveSerializer
         return BorrowingSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Borrowing]:
         queryset = self.queryset.select_related("user", "book")
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user.id)
@@ -60,7 +67,7 @@ class BorrowingViewSet(ModelViewSet):
             send_telegram_notification.apply_async(args=[message])
 
     @action(detail=True, methods=["get"], url_path="return")
-    def book_return(self, request, pk=None):
+    def book_return(self, request: HttpRequest, pk: int = None) -> Response:
         borrowing = self.get_object()
         if borrowing.actual_return_date:
             return Response(

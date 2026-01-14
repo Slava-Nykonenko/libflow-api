@@ -50,5 +50,5 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.first_name} {self.last_name} (ID: {self.id})"
