@@ -32,7 +32,8 @@ def create_stripe_session(request, borrowing):
         mode="payment",
         success_url=request.build_absolute_uri(reverse("payments:success"))
         + "?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url=request.build_absolute_uri(reverse("payments:cancel")),
+        cancel_url=request.build_absolute_uri(reverse("payments:cancel"))
+        + f"?borrowing_id={borrowing.id}",
         metadata={"borrowing_id": borrowing.id},
     )
 

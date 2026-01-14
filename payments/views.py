@@ -39,6 +39,11 @@ class SuccessView(TemplateView):
 class CancelView(TemplateView):
     template_name = "payments/cancel.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["borrowing_id"] = self.request.GET.get("borrowing_id")
+        return context
+
 
 @csrf_exempt
 def stripe_webhook(request):
