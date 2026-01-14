@@ -32,7 +32,11 @@ SECRET_KEY = environ["SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "libflow-api",
+]
 
 hostname, _, ips = gethostbyname_ex(gethostname())
 INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
@@ -53,6 +57,7 @@ INSTALLED_APPS = [
     "books",
     "borrowings",
     "django_celery_beat",
+    "payments",
 ]
 
 MIDDLEWARE = [
@@ -164,3 +169,9 @@ CELERY_RESULT_BACKEND = environ["CELERY_BROKER_URL"]
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
+STRIPE_PUBLISHABLE_KEY = environ["STRIPE_PUBLISHABLE_KEY"]
+STRIPE_SECRET_KEY = environ["STRIPE_SECRET_KEY"]
+STRIPE_WEBHOOK_SECRET = environ["STRIPE_WEBHOOK_SECRET"]
+
+DOMAIN = "http://localhost:8000"

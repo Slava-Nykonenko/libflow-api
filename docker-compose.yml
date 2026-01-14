@@ -84,5 +84,16 @@ services:
     env_file:
       - .env
 
+  stripe_cli:
+    image: stripe/stripe-cli:latest
+    container_name: stripe_cli
+    command: >
+      listen --forward-to libflow-api:8000/api/payments/webhook/ 
+      --api-key ${STRIPE_SECRET_KEY}
+    env_file:
+      - .env
+    depends_on:
+      - libflow-api
+
 volumes:
   database:

@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from borrowings.models import Borrowing
@@ -12,6 +13,8 @@ from borrowings.serializers import (
     BorrowingListSerializer,
     BorrowingRetrieveSerializer,
 )
+from payments.utils import create_stripe_session
+from payments.views import checkout_view
 
 
 # Create your views here.
@@ -29,7 +32,7 @@ class BorrowingViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset.select_related("user", "book")
         if not self.request.user.is_staff:
-            queryset = queryset.filter(user=self.request.user)
+            queryset = queryset.filter(user=self.request.user.id)
         if self.action in ("list", "retrieve"):
             user_id = self.request.query_params.get("user_id")
             is_active = self.request.query_params.get("is_active")
@@ -56,7 +59,7 @@ class BorrowingViewSet(ModelViewSet):
             )
             send_telegram_notification.apply_async(args=[message])
 
-    @action(detail=True, methods=["post"], url_path="return")
+    @action(detail=True, methods=["get"], url_path="return")
     def book_return(self, request, pk=None):
         borrowing = self.get_object()
         if borrowing.actual_return_date:
@@ -72,14 +75,17 @@ class BorrowingViewSet(ModelViewSet):
             book.inventory += 1
             book.save()
 
-            message = (
-                f"<b>A book returned!</b>\n"
-                f"User: {borrowing.user.first_name} {borrowing.user.last_name}\n"
-                f"e-mail: {borrowing.user.email}\n"
-                f"Book: {book.title}"
-            )
-            send_telegram_notification.apply_async(args=[message])
+        session = create_stripe_session(request, borrowing)
+
+        message = (
+            f"<b>Book returned!</b>\n"
+            f"User: {borrowing.user.first_name} {borrowing.user.last_name}\n"
+            f"e-mail: {borrowing.user.email}\n"
+            f"Book: {book.title}"
+        )
+        send_telegram_notification.apply_async(args=[message])
 
         return Response(
-            {"detail": "The book returned successfully."}, status=status.HTTP_200_OK
+            {"detail": "Book returned successfully.", "session_url": session.url},
+            status=HTTP_200_OK,
         )
