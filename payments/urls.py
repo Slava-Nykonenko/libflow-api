@@ -15,7 +15,7 @@ router.register("", PaymentViewSet, basename="payment")
 app_name = "payments"
 
 urlpatterns = [
-    path("checkout/", checkout_view, name="checkout"),
+    path("checkout/?<int:borrowing_id>/", checkout_view, name="checkout"),
     path("cancel/", CancelView.as_view(), name="cancel"),
     path(
         "success/",

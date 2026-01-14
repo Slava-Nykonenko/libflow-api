@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment was canceled</title>
+</head>
+<body>
+  <section>
+    {% if borrowing_id %}
+    <form action="{% url 'payments:checkout' borrowing_id=borrowing_id %}" method="POST">
+      {% csrf_token %}
+      <button type="submit">Try to pay again</button>
+    </form>
+    {% endif %}
+
+    <p><a href="{% url 'borrowings_app:borrowing-list' %}">Back to My Borrowings</a></p>
+  </section>
+</body>
+</html>
