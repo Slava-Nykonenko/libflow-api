@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
@@ -24,6 +25,7 @@ from payments.utils import create_stripe_session
 class BorrowingViewSet(ModelViewSet):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(
         self,
