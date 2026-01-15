@@ -15,9 +15,7 @@ def create_stripe_session(request: HttpRequest, borrowing: Borrowing) -> Session
     extra_days = 0
     if actual_return > borrowing.expected_return_date:
         extra_days = (actual_return - borrowing.expected_return_date).days
-
-    charged_days = total_days + extra_days
-    amount_in_cents = int(borrowing.book.daily_fee * total_days * 100)
+    amount_in_cents = int(borrowing.book.daily_fee * (total_days + extra_days) * 100)
     if amount_in_cents < 50:
         amount_in_cents = 50
 
@@ -29,7 +27,7 @@ def create_stripe_session(request: HttpRequest, borrowing: Borrowing) -> Session
                     "unit_amount": amount_in_cents,
                     "product_data": {"name": borrowing.book.title},
                 },
-                "quantity": charged_days,
+                "quantity": 1,
             }
         ],
         mode="payment",

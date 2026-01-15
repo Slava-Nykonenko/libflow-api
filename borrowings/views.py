@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -98,3 +99,25 @@ class BorrowingViewSet(ModelViewSet):
             {"detail": "Book returned successfully.", "session_url": session.url},
             status=HTTP_200_OK,
         )
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "is_active",
+                type={"type": "string"},
+                description="Filter borrowings by their status (active or "
+                "returned). This is case-insensitive"
+                "(i.e. '?is_active=true' will find all active borrowings).",
+                required=False,
+            ),
+            OpenApiParameter(
+                "user_id",
+                type={"type": "string"},
+                description="Filter borrowings by user's id. Use a numeric id "
+                "(i.e. 'user_id=7').",
+                required=False,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
