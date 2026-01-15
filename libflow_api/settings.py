@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "borrowings",
     "django_celery_beat",
     "payments",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -147,6 +148,8 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -173,3 +176,10 @@ STRIPE_SECRET_KEY = environ["STRIPE_SECRET_KEY"]
 STRIPE_WEBHOOK_SECRET = environ["STRIPE_WEBHOOK_SECRET"]
 
 DOMAIN = "http://localhost:8000"
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "LibFlow API",
+    "DESCRIPTION": "A modern, high-performance Library Management System Backend",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
