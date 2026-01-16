@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from datetime import timedelta
-from os import environ
+from os import getenv
 from pathlib import Path
 
 from _socket import gethostbyname_ex, gethostname
@@ -27,16 +27,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = environ["SECRET_KEY"]
+SECRET_KEY = getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "libflow-api",
-]
+ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 hostname, _, ips = gethostbyname_ex(gethostname())
 INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
@@ -99,11 +95,11 @@ AUTH_USER_MODEL = "user.User"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": environ["POSTGRES_DB"],
-        "USER": environ["POSTGRES_USER"],
-        "PASSWORD": environ["POSTGRES_PASSWORD"],
-        "HOST": environ["POSTGRES_HOST"],
-        "PORT": environ["POSTGRES_PORT"],
+        "NAME": getenv("POSTGRES_DB", "libflow_db"),
+        "USER": getenv("POSTGRES_USER", "libflow_user"),
+        "PASSWORD": getenv("POSTGRES_PASSWORD", "user_password"),
+        "HOST": getenv("POSTGRES_HOST", "db"),
+        "PORT": getenv("POSTGRES_PORT", "5432"),
     }
 }
 
@@ -162,20 +158,20 @@ SIMPLE_JWT = {
     "SIGNING_KEY": SECRET_KEY,
 }
 
-TELEGRAM_BOT_TOKEN = environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHAT_ID = environ["TELEGRAM_CHAT_ID"]
+TELEGRAM_BOT_TOKEN = getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = getenv("TELEGRAM_CHAT_ID")
 
-CELERY_BROKER_URL = environ["CELERY_BROKER_URL"]
-CELERY_RESULT_BACKEND = environ["CELERY_BROKER_URL"]
+CELERY_BROKER_URL = getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = getenv("CELERY_BROKER_URL", CELERY_BROKER_URL)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-STRIPE_PUBLISHABLE_KEY = environ["STRIPE_PUBLISHABLE_KEY"]
-STRIPE_SECRET_KEY = environ["STRIPE_SECRET_KEY"]
-STRIPE_WEBHOOK_SECRET = environ["STRIPE_WEBHOOK_SECRET"]
+STRIPE_PUBLISHABLE_KEY = getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = getenv("STRIPE_WEBHOOK_SECRET")
 
-DOMAIN = "http://localhost:8000"
+DOMAIN = getenv("DOMAIN", "http://localhost:8000")
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "LibFlow API",
